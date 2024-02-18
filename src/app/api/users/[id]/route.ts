@@ -5,14 +5,15 @@ import { User } from "../../../../models/user";
 export async function GET(req: NextRequest, { params: { id } }: any) {
   try {
     await connectMongoDB();
-    const user = await User.findOne({_id: id});
+    const user = await User.findById(id);
+
+    if (!user) {
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+    }
+
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
-    return NextResponse.error({
-      status: 500,
-      message: 'Internal Server Error',
-      error: error.message
-    });
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }
 
@@ -26,25 +27,20 @@ export async function PUT(req: NextRequest, { params: { id } }: any) {
     });
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
-    return NextResponse.error({
-      status: 500,
-      message: 'Internal Server Error',
-      error: error.message
-    });
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }
 
 export async function DELETE(req: NextRequest, { params: { id } }: any) {
   try {
     await connectMongoDB();
-    const user = await User.findByIdAndDelete(id);
-    return NextResponse.json({ user }, { status: 200 });
+    const deletedUser  = await User.findByIdAndDelete(id);
+    if (!deletedUser) {
+      return NextResponse.json({ message: 'User not found'}, {status: 404});
+    }
+    return NextResponse.json({ message: 'User deleted successfully' }, { status: 200 });
   } catch (error) {
-    return NextResponse.error({
-      status: 500,
-      message: 'Internal Server Error',
-      error: error.message
-    });
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }
 

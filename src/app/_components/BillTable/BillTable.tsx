@@ -10,10 +10,15 @@ const BillsList = () => {
   const [activeBill, setActiveBill] = useState(INIT_BILL);
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleEditClick = (index, bill) => {
+  const handleEditClick = (bill) => {
     setIsEditing(true)
     setActiveBill({ ...bill });
   };
+
+  const cancelEdit = () => {
+    setActiveBill(INIT_BILL);
+    setIsEditing(false);
+  }
 
   const handleSaveClick = () => {
     const cleanedBill = {
@@ -51,10 +56,11 @@ const BillsList = () => {
   const sortedBills = useMemo(() => monthlyBills?.sort((a, b) => a.dueDayOfMonth - b.dueDayOfMonth), [monthlyBills]);
   const totalBillsAmount = useMemo(() => sortedBills?.reduce((accumulator, bill) => {
     return accumulator + bill.billAmount;
-  }, 0), [monthlyBills]);
+  }, 0), [sortedBills]);
 
   return (
       <Container>
+        <h2>Bill Management</h2>
         <Card>
           <Card.Body>
             <h4>Add a Bill</h4>
@@ -89,10 +95,6 @@ const BillsList = () => {
                 </Col>
               </Row>
             </Form>
-          </Card.Body>
-        </Card>
-        <br />
-        <br />
         <h4>Current Bills: ${totalBillsAmount?.toFixed(2)}/mo</h4>
         <Table striped bordered hover size="sm">
           <thead>
@@ -105,7 +107,7 @@ const BillsList = () => {
           </tr>
           </thead>
           <tbody>
-          {sortedBills.map((bill, index) => (
+          {sortedBills ? sortedBills.map((bill, index) => (
             <tr key={bill._id}>
               <td>{index + 1}</td>
               <td>{renderBillField(bill, 'name')}</td>
@@ -113,17 +115,26 @@ const BillsList = () => {
               <td className="text-end">{renderBillField(bill, 'billAmount')}</td>
               <td className="text-end">
                 {activeBill._id === bill._id ? (
-                    <Button variant="success" onClick={handleSaveClick}>Save</Button>
-                ) : (
-                    <Button variant="info" onClick={() => handleEditClick(index, bill)}>Edit</Button>
+                  <>
+                  <Button variant="success" onClick={handleSaveClick}>Save</Button>
+                  {' '}
+                  <Button variant="danger" onClick={cancelEdit}>Cancel</Button>
+                  </>
+              ) : (
+                  <>
+                  <Button variant="info" onClick={() => handleEditClick(bill)}>Edit</Button>
+                  {' '}
+                  <Button variant="danger" onClick={() => handleDeleteBill(bill)}>Delete</Button>
+                  </>
                 )}
-                {' '}
-                <Button variant="danger" onClick={() => handleDeleteBill(bill)}>Delete</Button>
               </td>
             </tr>
-          ))}
+          )) : null}
           </tbody>
         </Table>
+          </Card.Body>
+        </Card>
+        
       </Container>
   );
 };

@@ -8,20 +8,16 @@ export async function PUT(req: NextRequest, { params: { id }}) {
     const doc = await Bill.findOne({ userId: id });
 
     if (!doc) {
-      return NextResponse.error({
-        status: 404,
-        message: 'Bill not found.',
-      });
+      return NextResponse.json({ message: 'Bill not found'}, {status: 404});
     }
 
     const data = await req.json();
-    console.log('data...',data);
-    const { paymentOptions, financialDetails, expenseCategory } = data;
+    const { paymentOptions, financialDetails, expenseItem } = data;
 
     // Update paymentOptions
     if (paymentOptions) {
       const { payStartDate,  payEndDate } = paymentOptions;
-      doc.paymentOptions.payStartDate = new Date(payStartDate) || doc.paymentOptions.payStartDate;
+      doc.paymentOptions.payStartDate = new Date (payStartDate) || doc.paymentOptions.payStartDate;
       doc.paymentOptions.payEndDate = new Date(payEndDate) || doc.paymentOptions.payEndDate;
     }
 
@@ -33,36 +29,39 @@ export async function PUT(req: NextRequest, { params: { id }}) {
     }
 
     // Update expenseCategories
-    if (expenseCategory) {
+    if (expenseItem) {
       const existingExpense = await Bill.findOne(
-          { userId: id, 'expenseCategories._id': expenseCategory._id },
+          { userId: id, 'expenseCategories._id': expenseItem._id },
           { 'expenseCategories.$': 1 }
       );
       if (!existingExpense) {
-        doc.expenseCategories.push(expenseCategory);
+        doc.expenseCategories.push(expenseItem);
       } else {
-        await Bill.findOneAndUpdate(
-            { userId: id, 'expenseCategories._id': expenseCategory._id },
-            {
-              $set: {
-                'expenseCategories.$.name': expenseCategory.name || existingExpense.expenseCategories[0].name,
-                'expenseCategories.$.amount': expenseCategory.amount || existingExpense.expenseCategories[0].amount
-              }
-            },
-            { new: true }
-        ).catch(e => console.log('Error updating expense item.', e.message));
+        const expenseIndex = doc.expenseCategories.findIndex(expense => expense._id.equals(expenseItem._id));
+        if (expenseIndex !== -1) {
+          doc.expenseCategories[expenseIndex] = { ...doc.expenseCategories[expenseIndex], ...expenseItem };
+        }
       }
     }
 
-    // Save the updated document
+    const billDoc = await doc.save();
+    return NextResponse.json({ billDoc }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest, { params: { id }}) {
+  try {
+    await connectMongoDB();
+    const data = await req.json();
+
+    const doc = await Bill.findOne({ userId: id });
+    doc.expenseCategories.pull({_id: data._id});
     const billDoc = await doc.save();
 
     return NextResponse.json({ billDoc }, { status: 200 });
   } catch (error) {
-    return NextResponse.error({
-      status: 500,
-      message: 'Internal Server Error',
-      error: error.message
-    });
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -33,21 +33,13 @@ export async function PUT(req: NextRequest, { params: { id }}) {
     if (!doc.monthlyBills.id(data._id)) {
       doc.monthlyBills.push(data);
     } else {
-      await Bill.findOneAndUpdate(
-          { userId: id, 'monthlyBills._id': data._id },
-          {
-            $set: {
-              'monthlyBills.$.name': data.name,
-              'monthlyBills.$.dueDayOfMonth': data.dueDayOfMonth,
-              'monthlyBills.$.billAmount': data.billAmount,
-            }
-          },
-          { new: true }
-      ).catch(e => console.log('Error updating bill', e.message));
+      const billIndex = doc.monthlyBills.findIndex(bill => bill._id.equals(data._id));
+      if (billIndex !== -1) {
+        doc.monthlyBills[billIndex] = { ...doc.monthlyBills[billIndex], ...data };
+      }
     }
 
     const billDoc = await doc.save();
-
     return NextResponse.json({ billDoc }, { status: 200 });
   } catch (error) {
     return NextResponse.error({
@@ -76,24 +68,3 @@ export async function DELETE(req: NextRequest, { params: { id }}) {
     });
   }
 }
-
-
-export async function PUT(req: NextRequest, { params: { id }}) {
-  try {
-    await connectMongoDB();
-    const data = await req.json();
-
-    const doc = await Bill.findOne({ userId: id });
-
-    // Code logic goes here
-
-    return NextResponse.json({ ... }, { status: 200 });
-  } catch (error) {
-    return NextResponse.error({
-      status: 500,
-      message: 'Internal Server Error',
-      error: error.message
-    });
-  }
-}
-

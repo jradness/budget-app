@@ -7,7 +7,7 @@ const calculateBudget = (bills, start, end, income, tithe, grocery) => {
         let billMonth = start.getMonth();
 
         // Check if the bill due date is in the next month
-        if (bill.dueDate < start.getDate()) {
+        if (bill.dueDayOfMonth < start.getDate()) {
           billMonth++;
           if (billMonth > 11) {
             billMonth = 0;
@@ -38,6 +38,5 @@ const calculateBudget = (bills, start, end, income, tithe, grocery) => {
     billNames: billNames.join(', ')
   };
 };
-
 
 export default calculateBudget;

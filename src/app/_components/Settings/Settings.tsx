@@ -1,178 +1,267 @@
+'use client'
 import React, {useEffect, useState} from 'react';
-import {Container, Button, Col, Form, Row, Card} from "react-bootstrap";
+import {Container, Button, Col, Form, Row, Card, Table} from "react-bootstrap";
 import {useBillService} from "../../_services/useBillService";
-import useDebounce from "../../_hooks/useDebounce";
 
 const Settings = () => {
+  const {
+    expenseCategories,
+    paymentOptions,
+    financialDetails: finDetails,
+    updatePaymentDates,
+    addExpense,
+    updateExpense,
+    deleteExpense,
+    updateFinancialDetails
+  } = useBillService();
   const billService = useBillService();
-  const startDate = billService?.paymentOptions?.payStartDate;
-  const endDate = billService?.paymentOptions?.payEndDate;
+
+  const INIT_EXPENSE = {name: '', amount: ''};
   const [show, setShow] = useState(false);
-  const [activeBill, setActiveBill] = useState({});
+  const [expenseItem, setExpenseItem] = useState(INIT_EXPENSE);
   const [isEditing, setIsEditing] = useState(false);
-
-  const [state, setState] = useState({
-    payStartDate: startDate,
-    payEndDate: endDate,
-    biWeeklyIncome: 4912,
-    expenseCategories: [],
-  });
-
-  const debouncedValue = useDebounce(state, 1000);
-
+  const [payStartDate, setPayStartDate] = useState('');
+  const [payEndDate, setPayEndDate] = useState('');
+  const [financialDetails, setFinancialDetails] = useState({});
+  const radioOptions = ['weekly', 'bi-weekly', 'bi-monthly', 'monthly', 'yearly'];
 
   useEffect(() => {
-    console.log('state effect');
-  }, [debouncedValue]);
-console.log(billService);
-
-  const hello = () => {
-    const paymentOptions = {
-      payStartDate: '2024-01-04T00:00:00-06:00',
-      payEndDate: '2024-12-19T00:00:00-06:00',
+    if (paymentOptions) {
+      setPayStartDate(paymentOptions?.payStartDate);
+      setPayEndDate(paymentOptions?.payEndDate);
+      setFinancialDetails(finDetails);
     }
-  const financialDetails = {
-    annualIncome: 152000,
-    payDayAmount: 4912,
-    paymentSchedule: 'bi-weekly'
-  }
+  }, [paymentOptions, finDetails]);
 
-  const expenseCategory =  {
-      // _id: '65c95ca1b4f8a3e11b407530', amount: 250
-      // _id: '65c9649cb4f8a3e11b407792', amount: 1200
-    name: 'Stuff', amount: 200
+  const handleDateChange = async () => {
+    await updatePaymentDates(payStartDate, payEndDate);
+  };
+
+  const handleFinancialDetailsChange = ({ target: { name, value }}) => {
+    setFinancialDetails({ ...financialDetails, [name]: value });
+  };
+
+  const handleExpenseChange = ({ target: { name, value }}) => {
+    setExpenseItem({ ...expenseItem, [name]: value });
+  };
+
+  const handleEditExpense = (expense) => {
+    setExpenseItem({...expense});
+    setIsEditing(true);
+  };
+
+  const cancelEdit = () => {
+    setExpenseItem(INIT_EXPENSE);
+    setIsEditing(false);
+  }
+  
+  const handleDeleteExpense = (expense) => {
+    deleteExpense(expense);
+  };
+
+  const handleAddOrUpdateExpense = () => {
+    if (isEditing) {
+      updateExpense(expenseItem);
+    } else {
+      addExpense(expenseItem);
     }
+    setExpenseItem(INIT_EXPENSE);
+    setIsEditing(false);
+  };
 
-    billService.setState('paymentOptions', {expenseCategory});
-  }
-
-  const handleAddExpenseClicked = () => {
-
-  }
-
-  const handleInputChange = (key, value) => {
-    setState((prevState) => ({
-      ...prevState,
-      [key]: value,
-    }));
+  const submitFinancialDetails = () => {
+    updateFinancialDetails(financialDetails);
   };
 
   const generatePayDates = () => {
     let dates = [];
-    let currentDate = new Date(startDate);
-    const endDateObject = new Date(endDate);
-
+    let currentDate = new Date(payStartDate);
+    const endDateObject = new Date(payEndDate);
+    const usLocale = 'en-US';
     while (currentDate <= endDateObject) {
-      dates.push(currentDate.toLocaleDateString());
+      dates.push(currentDate.toLocaleDateString(usLocale, { timeZone: 'UTC'}));
       currentDate = new Date(currentDate.setDate(currentDate.getDate() + 14));
     }
-
     return dates;
   }
 
-  return (
-     <Container>
-       {/*<button onClick={hello}>Hello</button>*/}
-       <Form>
+  const renderExpenseField = (expense, field) => {
+    if (expenseItem._id === expense._id) {
+      return (
+        <Form.Control
+          type="text"
+          name={field}
+          value={expenseItem[field]}
+          onChange={(e) => handleExpenseChange(e)}
+        />
+      );
+    }
+    return expense[field];
+  };
 
+  return (
+    <Container>
+      <h2>Bill Settings</h2>
+      <Form>
         <Card>
           <Card.Body>
+            <Card.Title>Financial Details</Card.Title>
+              <Form.Group as={Row}>
+                <Form.Label column sm="2"><b>Annual Income ($):</b></Form.Label>
+                <Col sm="10">
+                  <Form.Control 
+                    type="number" 
+                    name="annualIncome" 
+                    value={financialDetails.annualIncome} 
+                    onChange={handleFinancialDetailsChange} 
+                  />
+                </Col>
+              </Form.Group>
             {/* Bi-Weekly Income */}
+            <Form.Group as={Row}>
+                <Form.Label column sm="2"><b>Pay Day Amnount:</b></Form.Label>
+                <Col sm="10">
+                  <Form.Control 
+                    type="number" 
+                    name="payDayAmount" 
+                    value={financialDetails.payDayAmount} 
+                    onChange={handleFinancialDetailsChange} 
+                  />
+                </Col>
+              </Form.Group>
             <Form.Group>
-              <Form.Label><b>Bi-Weekly Income ($):</b></Form.Label>
-              <Col>
-                <Form.Control
-                    type="number"
-                    value={state.biWeeklyIncome}
-                    onChange={(e) => handleInputChange('biWeeklyIncome', parseFloat(e.target.value))}
-                />
-              </Col>
+            <Col>
+            <Form.Label><b>Payment Schedule</b></Form.Label>
+            {radioOptions.map((option) => (
+              <Form.Check 
+                type="radio"
+                name="paymentSchedule"
+                key={option}
+                value={option}
+                label={option.charAt(0).toUpperCase() + option.slice(1)}
+                checked={financialDetails.paymentSchedule === option}
+                onChange={handleFinancialDetailsChange}
+              />
+            ))}</Col>
             </Form.Group>
-            <br/>
-            <div>Select a Date rang to forecast pay periods.
-              <small><i>(i.e first pay date and last pay date of year)</i></small>
-            </div>
-            {/* Start Date */}
-            <Form.Group>
-              <Form.Label><b>Start Date:</b></Form.Label>
-              <Col>
-                <Form.Control
-                    type="date"
-                    value={startDate?.substring(0, 10)}
-                    onChange={(e) => handleInputChange('startDate', e.target.value)}
-                />
-              </Col>
-            </Form.Group>
-            {/* End Date */}
-            <Form.Group>
-              <Form.Label><b>End Date:</b></Form.Label>
-              <Col>
-                <Form.Control
-                    type="date"
-                    value={endDate?.substring(0, 10)}
-                    onChange={(e) => handleInputChange('endDate', e.target.value)}
-                />
-              </Col>
-            </Form.Group>
-            <br/>
-            <h6 onClick={() => setShow(prevState => !prevState)}>{'> '}Click to {!show ? 'SHOW' : 'HIDE'} date selection options based on current date range</h6>
-            {show ? (
-                <div className="justify-content-md-center">
-                  {generatePayDates().map((date, index) => (
-                      <Col key={index} md="auto">
-                        <div className="pay-date">{date}</div>
-                      </Col>
-                  ))}
-                </div>
-            ): null}
-
+            <br />
+            <Button onClick={submitFinancialDetails}>Update Financial Details</Button>
           </Card.Body>
         </Card>
-       </Form>
+      </Form>
+      <br />
+      <br />
+      <Form>
+        <Card>
+          <Card.Body>
+          <Card.Title>Payment Options</Card.Title>
+          <small>Select a Date rang to forecast pay periods.
+            <i>(i.e first pay date and last pay date of year)</i>
+          </small>
+            {/* Start Date */}
+          <Form.Group as={Row} controlId="payStartDate">
+            <Form.Label column sm={2}><b>Pay Start Date</b></Form.Label>
+            <Col sm={10}>
+              <Form.Control 
+                type="date" 
+                value={payStartDate ? payStartDate.substring(0, 10) : ''}
+                onChange={(e) => setPayStartDate(e.target.value)} 
+              />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} controlId="payEndDate">
+            <Form.Label column sm={2}><b>Pay End Date</b></Form.Label>
+            <Col sm={10}>
+              <Form.Control 
+                type="date" 
+                value={payEndDate ? payEndDate.substring(0, 10) : ''}
+                onChange={(e) => setPayEndDate(e.target.value)} 
+              />
+            </Col>
+          </Form.Group>
+          <br />
+          <Button variant="primary" onClick={handleDateChange}>Update Dates</Button>
+          <br/>
+          <br />
+          <h6 onClick={() => setShow(prevState => !prevState)}>{'> '}Click to {!show ? 'SHOW' : 'HIDE'} date selection options based on current date range</h6>
+            {show ? (
+              <div className="justify-content-md-center">
+                {generatePayDates().map((date, index) => (
+                  <Col key={index} md="auto">
+                    <div className="pay-date">{date}</div>
+                  </Col>
+                ))}
+              </div>
+            ): null}
+          </Card.Body>
+        </Card>
+      </Form>
 
-       <Form>
-         <Card className="mt-5">
-           <Card.Body>
-             <Row>
-               <h3>Add Recurring Expense</h3>
-               <Col>
-                 <Form.Control
-                     type="text"
-                     placeholder="Bill Name"
-                     value={!isEditing ? activeBill.name : null}
-                     onChange={(e) => setActiveBill(prevState => ({ ...prevState, name: e.target.value }))}
-                 />
-               </Col>
-               <Col>
-                 <Form.Control
-                     type="number"
-                     placeholder="Due Date (Day of Month)"
-                     value={!isEditing && activeBill.dueDayOfMonth}
-                     onChange={(e) => setActiveBill(prevState => ({ ...prevState, dueDayOfMonth: e.target.value }))}
-                 />
-               </Col>
-               <Col>
-                 <Form.Control
-                     type="number"
-                     placeholder="Amount ($)"
-                     value={!isEditing && activeBill.billAmount}
-                     onChange={(e) => setActiveBill(prevState => ({ ...prevState, billAmount: e.target.value }))}
-                 />
-               </Col>
-               <Col>
-                 <Button onClick={handleAddExpenseClicked}>Add Expense</Button>
-               </Col>
-             </Row>
-           </Card.Body>
-         </Card>
-       </Form>
-       {billService.expenseCategories.map(item => (
-           <div>{item.name}: {item.amount}</div>
-       ))}
-      </Container>
+      <Form>
+        <Card className="mt-5">
+          <Card.Body>
+            <Row>
+              <h3>Add Recurring Pay Period Expense</h3>
+              <Col>
+                <Form.Control
+                  type="text"
+                  placeholder="Expense Name"
+                  name="name"
+                  value={!isEditing && expenseItem?.name}
+                  onChange={handleExpenseChange}
+              />
+              </Col>
+              <Col>
+                <Form.Control
+                  type="number"
+                  name="amount"
+                  placeholder="Amount ($)"
+                  value={!isEditing && expenseItem?.amount}
+                  onChange={handleExpenseChange}
+                />
+              </Col>
+              <Col>
+                <Button onClick={handleAddOrUpdateExpense}>Add Expense</Button>
+              </Col>
+            </Row>
+            <br />
+            <Table striped bordered hover size="sm">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th className="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {expenseCategories?.length > 0 ? expenseCategories.map(item => (
+        <tr key={item._id}>
+          <td>{renderExpenseField(item, 'name')}</td>
+          <td>{renderExpenseField(item, 'amount')}</td>
+          <td className="text-end">
+            {expenseItem._id === item._id ? (
+                <>
+                <Button variant="success" onClick={handleAddOrUpdateExpense}>Save</Button>
+                {' '}
+                <Button variant="danger" onClick={cancelEdit}>Cancel</Button>
+                </>
+            ) : (
+                <>
+                <Button variant="info" onClick={() => handleEditExpense(item)}>Edit</Button>
+                {' '}
+                <Button variant="danger" onClick={() => handleDeleteExpense(item)}>Delete</Button>
+                </>
+            )}
+            </td>
+        </tr>
+      )): null}
+      </tbody>
+      </Table>
+          </Card.Body>
+        </Card>
+      </Form>
+    </Container>
   );
 };
 
 export default Settings;
-
-

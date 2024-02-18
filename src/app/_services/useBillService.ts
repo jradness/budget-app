@@ -19,14 +19,18 @@ interface IBillStore {
   monthlyBills?: IBill[],
   paymentOptions?: Object,
   financialDetails: Object,
-  expenseCategories: Object,
+  expenseCategories: Object[],
 }
 
 interface IBillsService extends IBillStore {
   getUserBillData: () => Promise<void>,
-  handleBill: (userId: object) => Promise<void>,
-  deleteBill: (userId: string) => Promise<void>,
-  setState: (key, value) => void
+  handleBill: (userId: Object) => Promise<void>,
+  deleteBill: (userId: String) => Promise<void>,
+  updatePaymentDates: (payStartDate: string, payEndDate: string) => Promise<void>,
+  updateFinancialDetails: (financialDetails: Object) => Promise<void>,
+  addExpense: (expenseItem: Object) => Promise<void>,
+  updateExpense: (expenseItem: Object) => Promise<void>,
+  deleteExpense: (expenseItemId: String) => Promise<void>,
 }
 
 // bill state store
@@ -35,7 +39,7 @@ const initialState = {
   monthlyBills: [],
   paymentOptions: {},
   financialDetails: {},
-  expenseCategories: {},
+  expenseCategories: [],
 };
 
 const billsStore = create<IBillStore>(() => initialState);
@@ -72,26 +76,47 @@ function useBillService(): IBillsService {
     }
   };
 
-
   return {
     currentUser,
     monthlyBills,
     paymentOptions,
     financialDetails,
     expenseCategories,
-    getUserBillData: async () => await fetchBillDetails(currentUser._id),
+    getUserBillData: async () => await fetchBillDetails(currentUser?._id),
     handleBill: async (bill) => {
       const { billDoc } = await fetch.put(`http://localhost:3000/api/bills/${currentUser._id}/monthly`, bill);
+      console.log(billDoc.monthlyBills[1]);
       billsStore.setState({ monthlyBills: billDoc.monthlyBills});
     },
     deleteBill: async (bill) => {
       const { billDoc } = await fetch.delete(`http://localhost:3000/api/bills/${currentUser._id}/monthly`, bill);
       billsStore.setState({ monthlyBills: billDoc.monthlyBills});
     },
-    setState: async (key, value) => {
+    updatePaymentDates: async (payStartDate: string, payEndDate: string) => {
+      const paymentOptions = {
+        payStartDate,
+        payEndDate
+      }
+      await fetch.put(`http://localhost:3000/api/bills/${currentUser._id}/doc`, {paymentOptions});
+      billsStore.setState({ paymentOptions });
+    },
+    updateFinancialDetails: async (financialDetails) => {
+      await fetch.put(`http://localhost:3000/api/bills/${currentUser._id}/doc`, {financialDetails});
+      billsStore.setState({ financialDetails });
+    },
+    addExpense: async (expenseItem) => {
+      const { billDoc } = await fetch.put(`http://localhost:3000/api/bills/${currentUser._id}/doc`, {expenseItem});
+      billsStore.setState({ expenseCategories: billDoc.expenseCategories });
+    },
+    updateExpense: async (expenseItem) => {
+      const { billDoc } = await fetch.put(`http://localhost:3000/api/bills/${currentUser._id}/doc`, {expenseItem});
+      billsStore.setState({ expenseCategories: billDoc.expenseCategories });
+    },
 
-      await fetch.put(`http://localhost:3000/api/bills/${currentUser._id}/doc`, value);
-    }
+    deleteExpense: async (expenseItem) => {
+      const { billDoc } = await fetch.delete(`http://localhost:3000/api/bills/${currentUser._id}/doc`, expenseItem);
+      billsStore.setState({ expenseCategories: billDoc.expenseCategories });
+    },
   }
 }
 

@@ -1,14 +1,18 @@
-import Image from "next/image";
 import styles from "./page.module.css";
-import Button from 'react-bootstrap/Button';
-import Link from 'next/link';
 
 export default function Home() {
   return (
     <main className={styles.main}>
-      <Link href="/dashboard">Dashboard</Link>
+      <div>
+        <h1>Welcome to my App</h1>
+        <a className={styles.subText} href="/api/auth/login">Login / Sign Up</a>
+      </div>
+      {/* <Link href="/dashboard">Dashboard</Link>
+      <br />
       <Link href="/account/login">Login Screen</Link>
-      <Link href="/account/register">Register Screen</Link>
+      <a href="/api/auth/login">Login</a>
+      <br />
+      <Link href="/account/register">Register Screen</Link> */}
     </main>
   );
 }
