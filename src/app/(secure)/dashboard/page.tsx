@@ -8,14 +8,10 @@ const Dashboard = async () => {
  return (
     <Container>
       <div>{session?.user?.email} - <a href="/api/auth/logout">Logout</a></div>
-      {/* {session && session?.user && (
-        <div>{session.user.email} - <a href="/api/auth/logout">Logout</a></div>
-      )} */}
       <h1>Money Budgeting App</h1>
-      {/* <DashboardTabs /> */}
+      <DashboardTabs />
       </Container>
   );
 };
 
-// export default Dashboard;
 export default withPageAuthRequired(Dashboard, { returnTo: '/' });
