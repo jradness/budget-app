@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useFetch } from '../_helpers/client/useFetch';
+import { config } from '../../constants';
 
 // interfaces
 interface IUser {
@@ -48,13 +49,13 @@ function useUserService(): IUserService {
     currentUser,
     getCurrent: async (id) => {
       if (!currentUser) {
-        const { user } = await fetch.get(`http://localhost:3000/api/users/${id}`);
+        const { user } = await fetch.get(`${config.baseUrl}/api/users/${id}`);
         userStore.setState({ currentUser: user });
       }
     },
     register: async (userData) => {
       console.log(userData);
-      const { user } = await fetch.post(`http://localhost:3000/api/auth/register`, userData);
+      const { user } = await fetch.post(`${config.baseUrl}/api/auth/register`, userData);
       userStore.setState({ currentUser: user });
     }
   }

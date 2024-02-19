@@ -7,7 +7,6 @@ export async function POST(req: NextRequest, res) {
   try {
     await connectMongoDB();
     const data = await req.json();
-    console.log('auth cb....', data);
     const existingUser = await User.findOne({ email: data.email });
 
     if (existingUser) {
