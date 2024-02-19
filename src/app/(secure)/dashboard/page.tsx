@@ -1,12 +1,13 @@
 import React from 'react';
 import DashboardTabs from '../../_components/DashboardTabs/DashboardTabs';
 import {Container} from "react-bootstrap";
-// import { withPageAuthRequired, getSession } from '@auth0/nextjs-auth0';
+import { withPageAuthRequired, getSession } from '@auth0/nextjs-auth0';
 
 const Dashboard = async () => {
-  // const session = await getSession();
+  const session = await getSession();
  return (
     <Container>
+      <div>{session?.user?.email} - <a href="/api/auth/logout">Logout</a></div>
       {/* {session && session?.user && (
         <div>{session.user.email} - <a href="/api/auth/logout">Logout</a></div>
       )} */}
@@ -16,5 +17,5 @@ const Dashboard = async () => {
   );
 };
 
-export default Dashboard;
-// export default withPageAuthRequired(Dashboard, { returnTo: '/' });
+// export default Dashboard;
+export default withPageAuthRequired(Dashboard, { returnTo: '/' });
