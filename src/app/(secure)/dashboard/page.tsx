@@ -1,7 +1,7 @@
 import React from 'react';
 import DashboardTabs from '../../_components/DashboardTabs/DashboardTabs';
 import {Container} from "react-bootstrap";
-import { getSession } from "@auth0/nextjs-auth0";
+import { withPageAuthRequired, getSession } from '@auth0/nextjs-auth0';
 
 const Dashboard = async () => {
   const session = await getSession();
@@ -16,4 +16,4 @@ const Dashboard = async () => {
   );
 };
 
-export default Dashboard;
+export default withPageAuthRequired(Dashboard, { returnTo: '/' });
