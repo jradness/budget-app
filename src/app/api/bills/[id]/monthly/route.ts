@@ -9,11 +9,7 @@ export async function GET(req: NextRequest, { params: { id } }: any) {
 
     return NextResponse.json({ billDoc }, { status: 200 });
   } catch (error) {
-    return NextResponse.error({
-      status: 500,
-      message: 'Internal Server Error',
-      error: error.message
-    });
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }
 
@@ -23,10 +19,7 @@ export async function PUT(req: NextRequest, { params: { id }}) {
     let doc = await Bill.findOne({userId: id});
     if (!doc) {
       console.error('User Bill collection not found');
-      return NextResponse.error({
-        status: 404,
-        message: 'User Bill collection not found'
-      });
+      return NextResponse.json({ message: 'User Bill collection not found' }, { status: 404 });
     }
     const data = await req.json();
 
@@ -42,11 +35,7 @@ export async function PUT(req: NextRequest, { params: { id }}) {
     const billDoc = await doc.save();
     return NextResponse.json({ billDoc }, { status: 200 });
   } catch (error) {
-    return NextResponse.error({
-      status: 500,
-      message: 'Internal Server Error',
-      error: error.message
-    });
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }
 
@@ -61,10 +50,6 @@ export async function DELETE(req: NextRequest, { params: { id }}) {
 
     return NextResponse.json({ billDoc }, { status: 200 });
   } catch (error) {
-    return NextResponse.error({
-      status: 500,
-      message: 'Internal Server Error',
-      error: error.message
-    });
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

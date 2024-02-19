@@ -12,11 +12,7 @@ export async function GET(request, { params }) {
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
     // Handle any errors and return an appropriate response
-    return NextResponse.error({
-      status: 500,
-      message: 'Internal Server Error',
-      error: error.message
-    });
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }
 

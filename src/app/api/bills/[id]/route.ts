@@ -9,10 +9,6 @@ export async function GET(req: NextRequest, { params: { id } }: any) {
 
     return NextResponse.json({ billDoc }, { status: 200 });
   } catch (error) {
-    return NextResponse.error({
-      status: 500,
-      message: 'Internal Server Error',
-      error: error.message
-    });
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }
