@@ -6,6 +6,11 @@ const UserSchema = new mongoose.Schema ({
     unique: true,
     required: [true, 'Please add a username']
   },
+  auth_id: {
+    type: String,
+    unique: true,
+    required: [true, 'Please add a Auth0 id to user']
+  },
   email: {
     type: String,
     required: [true, 'Please add an email'],
