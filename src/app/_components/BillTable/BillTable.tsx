@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useMemo, useCallback } from 'react';
-import {Table, Button, Form, Row, Col, Card, Container} from 'react-bootstrap';
+import {Table, Button, Form, Row, Col, Card, Container, ToastContainer, Toast} from 'react-bootstrap';
 import {useBillService} from "../../_services/useBillService";
 
 const INIT_BILL = { name: '', dueDayOfMonth: '', billAmount: '' };
@@ -9,6 +9,14 @@ const BillsList = () => {
   const { monthlyBills, handleBill, deleteBill} = useBillService()
   const [activeBill, setActiveBill] = useState(INIT_BILL);
   const [isEditing, setIsEditing] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const displayToast = (message) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000); // Toast will disappear after 3 seconds
+  };
 
   const handleEditClick = (bill) => {
     setIsEditing(true)
@@ -20,19 +28,25 @@ const BillsList = () => {
     setIsEditing(false);
   }
 
-  const handleSaveClick = () => {
+  const handleSaveClick = async () => {
     const cleanedBill = {
       ...activeBill,
       dueDate: parseInt(activeBill.dueDayOfMonth),
       amount: parseFloat(activeBill.billAmount)
     };
-    handleBill(cleanedBill);
+    await handleBill(cleanedBill);
+    if (cleanedBill?._id) {
+      displayToast('Bill updated successfully');
+    } else {
+      displayToast('Added Bill successfully');
+    }
     setActiveBill(INIT_BILL);
     setIsEditing(false);
   };
 
-  const handleDeleteBill = (bill) => {
-    deleteBill(bill);
+  const handleDeleteBill = async (bill) => {
+    await deleteBill(bill);
+    displayToast('Bill deleted successfully');
   }
 
   const handleInputChange = (e, field) => {
@@ -59,8 +73,8 @@ const BillsList = () => {
   }, 0), [sortedBills]);
 
   return (
-      <Container>
-        <h2>Bill Management</h2>
+    <Container>
+      <h2>Bill Management</h2>
         <Card>
           <Card.Body>
             <h4>Add a Bill</h4>
@@ -95,47 +109,56 @@ const BillsList = () => {
                 </Col>
               </Row>
             </Form>
-        <h4>Current Bills: ${totalBillsAmount?.toFixed(2)}/mo</h4>
-        <Table striped bordered hover size="sm">
-          <thead>
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th className="text-end">Due Date</th>
-            <th className="text-end">Amount</th>
-            <th className="text-end">Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          {sortedBills ? sortedBills.map((bill, index) => (
-            <tr key={bill._id}>
-              <td>{index + 1}</td>
-              <td>{renderBillField(bill, 'name')}</td>
-              <td className="text-end">{renderBillField(bill, 'dueDayOfMonth')}</td>
-              <td className="text-end">{renderBillField(bill, 'billAmount')}</td>
-              <td className="text-end">
-                {activeBill._id === bill._id ? (
-                  <>
-                  <Button variant="success" onClick={handleSaveClick}>Save</Button>
-                  {' '}
-                  <Button variant="danger" onClick={cancelEdit}>Cancel</Button>
-                  </>
-              ) : (
-                  <>
-                  <Button variant="info" onClick={() => handleEditClick(bill)}>Edit</Button>
-                  {' '}
-                  <Button variant="danger" onClick={() => handleDeleteBill(bill)}>Delete</Button>
-                  </>
-                )}
-              </td>
-            </tr>
-          )) : null}
-          </tbody>
-        </Table>
+            <h4>Current Bills: ${totalBillsAmount?.toFixed(2)}/mo</h4>
+            <Table striped bordered hover size="sm">
+              <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th className="text-end">Due Date</th>
+                <th className="text-end">Amount</th>
+                <th className="text-end">Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+              {sortedBills ? sortedBills.map((bill, index) => (
+                <tr key={bill._id}>
+                  <td>{index + 1}</td>
+                  <td>{renderBillField(bill, 'name')}</td>
+                  <td className="text-end">{renderBillField(bill, 'dueDayOfMonth')}</td>
+                  <td className="text-end">{renderBillField(bill, 'billAmount')}</td>
+                  <td className="text-end">
+                    {activeBill._id === bill._id ? (
+                      <>
+                      <Button variant="success" onClick={handleSaveClick}>Save</Button>
+                      {' '}
+                      <Button variant="danger" onClick={cancelEdit}>Cancel</Button>
+                      </>
+                  ) : (
+                      <>
+                      <Button variant="info" onClick={() => handleEditClick(bill)}>Edit</Button>
+                      {' '}
+                      <Button variant="danger" onClick={() => handleDeleteBill(bill)}>Delete</Button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              )) : null}
+              </tbody>
+            </Table>
           </Card.Body>
         </Card>
-        
-      </Container>
+        <ToastContainer position="top-center">
+        <Toast bg="success" show={showToast} delay={3000} autohide>
+          <Toast.Header>
+            <strong className="me-auto">Notification</strong>
+          </Toast.Header>
+          <Toast.Body style={{ color: 'white'}}>
+            <h6>{toastMessage}</h6>
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
+    </Container>
   );
 };
 

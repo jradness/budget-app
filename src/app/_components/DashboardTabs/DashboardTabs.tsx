@@ -14,10 +14,10 @@ const DashboardTabs = () => {
     <Tab eventKey="dashboard" title="Dashboard">
       <ForecastTable />
     </Tab>
-    <Tab eventKey="bills" title="Bill">
+    <Tab eventKey="bills" title="Bills">
       <BillTable />
     </Tab>
-    <Tab eventKey="settings" title="Setting">
+    <Tab eventKey="settings" title="Settings">
       <Settings />
     </Tab>
   </Tabs>
