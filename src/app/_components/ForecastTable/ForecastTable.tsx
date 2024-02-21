@@ -1,12 +1,11 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import {Table} from "react-bootstrap";
-import { Container } from "react-bootstrap";
+import { Table, Container } from "react-bootstrap";
+import { useBillService } from "../../_services/useBillService";
+import { useUserService } from "../../_services/useUserService";
 import calculateNextPayday from "../../../utils/calc-next-payday";
 import calculateBudget from "../../../utils/calc-budget";
 import isDateRangeActive from "../../../utils/is-active-date-range";
-import {useBillService} from "../../_services/useBillService";
-import { useUserService } from "../../_services/useUserService";
 
 const ForecastTable = () => {
   const {

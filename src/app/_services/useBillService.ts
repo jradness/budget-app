@@ -16,7 +16,7 @@ interface IBill {
 }
 
 interface IBillStore {
-  currentUser?: useUserService,
+  currentUser?: any,
   monthlyBills?: IBill[],
   paymentOptions?: Object,
   financialDetails: Object,
