@@ -30,8 +30,8 @@ function useFetch() {
     // check for error response
     if (!response.ok) {
       if (response.status === 401) {
-        // api auto logs out on 401 Unauthorized, so redirect to login page
-        router.push('/account/login');
+        // api auto logs out on 401 Unauthorized, so redirect to home page
+        router.push('/');
       }
 
       // get error message from body or default to response status

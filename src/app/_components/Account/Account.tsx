@@ -7,7 +7,7 @@ import { Container, Navbar } from 'react-bootstrap';
 
 const Account = ({ children }) => {
   const { user, error, isLoading } = useUser();
-  const { currentUser, getAuthUser } = useUserService()
+  const { currentUser, getAuthUser, deleteUser } = useUserService()
   const billService = useBillService()
 
 

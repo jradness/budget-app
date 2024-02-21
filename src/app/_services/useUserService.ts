@@ -3,6 +3,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useFetch } from '../_helpers/client/useFetch';
 import { config } from '../../constants';
 
+
 // interfaces
 interface IUser {
   id?: string,
@@ -26,6 +27,7 @@ interface IUserStore {
 interface IUserService extends IUserStore {
   register: (user: Object) => Promise<void>,
   getAuthUser: (email: string) => Promise<void>,
+  deleteUser: (id: string) => Promise<void>,
 }
 
 // users state store
@@ -50,6 +52,9 @@ function useUserService(): IUserService {
     register: async (userData) => {
       const { user } = await fetch.post(`${config.baseUrl}/api/auth/register`, userData);
       userStore.setState({ currentUser: user });
+    },
+    deleteUser: async (authId) => {
+      await fetch.delete(`${config.baseUrl}/api/users/${currentUser?._id}?auth_id=${authId}`);
     }
   }
 }

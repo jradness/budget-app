@@ -1,6 +1,9 @@
 import connectMongoDB from "../../../../lib/mongodb";
 import { NextRequest, NextResponse } from 'next/server';
 import { User } from "../../../../models/user";
+import { Bill } from "../../../../models/bills";
+import managementClient from "../../../../lib/authMtmClient";
+
 
 export async function GET(req: NextRequest, { params: { id } }: any) {
   try {
@@ -35,10 +38,16 @@ export async function DELETE(req: NextRequest, { params: { id } }: any) {
   try {
     await connectMongoDB();
     const deletedUser  = await User.findByIdAndDelete(id);
-    if (!deletedUser) {
-      return NextResponse.json({ message: 'User not found'}, {status: 404});
+    const deletedBill  = await Bill.deleteOne({userId: id});
+
+    if (!deletedUser || !deletedBill) {
+      return NextResponse.json({ message: 'User or Bills not found'}, {status: 404});
     }
-    return NextResponse.json({ message: 'User deleted successfully' }, { status: 200 });
+    
+    const authId = req.nextUrl.searchParams.get('auth_id') as string;
+    await managementClient.users.delete({ id: authId });
+
+    return NextResponse.json({ message: 'User TEST deleted successfully' }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }

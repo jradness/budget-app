@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useMemo } from 'react';
-import {Table, Button, Form, Row, Col, Card, Container, ToastContainer, Toast} from 'react-bootstrap';
+import {Spinner, Modal, Table, Button, Form, Row, Col, Card, Container, ToastContainer, Toast} from 'react-bootstrap';
 import {useBillService} from "../../_services/useBillService";
 
 const INIT_BILL = { name: '', dueDayOfMonth: '', billAmount: '' };
@@ -11,6 +11,11 @@ const BillsList = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleCloseModal = () => setShowModal(false);
+  const handleShowModal = () => setShowModal(true);
 
   const displayToast = (message) => {
     setToastMessage(message);
@@ -44,9 +49,22 @@ const BillsList = () => {
     setIsEditing(false);
   };
 
-  const handleDeleteBill = async (bill) => {
-    await deleteBill(bill);
-    displayToast('Bill deleted successfully');
+  const handleConfirmDelete = (bill) => {
+    setShowModal(true);
+    setActiveBill(bill);
+  }
+
+  const handleDeleteBill = async () => {
+    try {
+      setIsProcessing(true);
+      await deleteBill(activeBill);
+      setIsProcessing(false);
+      setShowModal(false);
+      setActiveBill(INIT_BILL);
+      displayToast('Bill deleted successfully');
+    } catch (error) {
+      console.log('Error deleting bill')
+    }
   }
 
   const handleInputChange = (e, field) => {
@@ -138,7 +156,7 @@ const BillsList = () => {
                       <>
                       <Button variant="info" onClick={() => handleEditClick(bill)}>Edit</Button>
                       {' '}
-                      <Button variant="danger" onClick={() => handleDeleteBill(bill)}>Delete</Button>
+                      <Button variant="danger" onClick={() => handleConfirmDelete(bill)}>Delete</Button>
                       </>
                     )}
                   </td>
@@ -158,6 +176,31 @@ const BillsList = () => {
           </Toast.Body>
         </Toast>
       </ToastContainer>
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>HOLD UP!🤚</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {!isProcessing ? (
+            <>
+              <p>Are you sure you want to delete this bill?</p>
+            </>
+          ) : (
+            <div style={{ textAlign: 'center'}}>
+              <h5>Deleting bill...</h5>
+              <Spinner animation="border" variant="primary" />
+          </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="success" onClick={handleCloseModal}>
+            Nevermind, keep this bill
+          </Button>
+          <Button variant="danger" onClick={handleDeleteBill}>
+            DELETE
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

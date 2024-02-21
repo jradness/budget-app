@@ -1,9 +1,15 @@
 'use client'
 import React, {useEffect, useState} from 'react';
-import {Container, Accordion, ToastContainer, Toast, Button, Col, Form, Row, Card, Table} from "react-bootstrap";
-import {useBillService} from "../../_services/useBillService";
+import { useRouter } from 'next/navigation';
+import {Spinner, Modal, Container, Accordion, ToastContainer, Toast, Button, Col, Form, Row, Card, Table} from "react-bootstrap";
+import { useBillService } from "../../_services/useBillService";
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { useUserService } from '../../_services/useUserService';
 
 const Settings = () => {
+  const { user } = useUser();
+  const router = useRouter();
+  const { deleteUser } = useUserService();
   const {
     expenseCategories,
     paymentOptions,
@@ -24,7 +30,15 @@ const Settings = () => {
   const [financialDetails, setFinancialDetails] = useState({});
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+
+  const handleCloseModal = () => setShowModal(false);
+  const handleShowModal = () => setShowModal(true);
+
   const radioOptions = ['weekly', 'bi-weekly', 'bi-monthly', 'monthly', 'yearly'];
+  const disabledOptions = ['weekly', 'bi-monthly', 'monthly', 'yearly'];
 
   useEffect(() => {
     if (paymentOptions) {
@@ -85,6 +99,18 @@ const Settings = () => {
     await updateFinancialDetails(financialDetails);
     displayToast('Financial details updated successfully');
   };
+
+  const handleDeleteUser = async () => {
+    try {
+      setIsProcessing(true);
+      await deleteUser(user?.sub);
+      setIsProcessing(false);
+      handleCloseModal();
+      router.push('/api/auth/logout');
+    } catch (error) {
+      console.log("Error deleting account");
+    }
+  }
 
   const generatePayDates = () => {
     let dates = [];
@@ -156,6 +182,7 @@ const Settings = () => {
                           name="paymentSchedule"
                           key={option}
                           value={option}
+                          disabled={disabledOptions.includes(option)}
                           label={option.charAt(0).toUpperCase() + option.slice(1)}
                           checked={financialDetails.paymentSchedule === option}
                           onChange={handleFinancialDetailsChange}
@@ -178,7 +205,8 @@ const Settings = () => {
               <Card>
                 <Card.Body>
                   <Card.Title>Forecast Pay Periods</Card.Title>
-                  <small>Select a date range to forecast pay periods.</small>
+                  <small>Select a date range to forecast bi-weekly pay periods.</small>
+                  <div><small>(Example: the first and last pay date of the year)</small></div>
                   
                   <Form.Group as={Row} controlId="payStartDate" className="my-3">
                     <Form.Label column sm={2}><b>Pay Start Date</b></Form.Label>
@@ -206,7 +234,8 @@ const Settings = () => {
                   
                   <div className="mt-3">
                     <h6 onClick={() => setShow(prevState => !prevState)}>
-                      {'> '}Click to {!show ? 'SHOW' : 'HIDE'} date selection options
+                      {'👉 '}Click to {!show ? 'SHOW' : 'HIDE'} date range selection options based on start date
+                      <div><small>*This is used to select a smaller date range vs the whole year</small></div>
                     </h6>
                     {show && (
                       <div className="justify-content-md-center">
@@ -291,6 +320,20 @@ const Settings = () => {
             </Form>
           </Accordion.Body>
         </Accordion.Item>
+        <Accordion.Item eventKey="3">
+          <Accordion.Header>Danger Area</Accordion.Header>
+          <Accordion.Body>
+            <Button variant='danger' onClick={handleShowModal}>Delete Account</Button>
+            <br />
+            <br />
+            <h4>Deleting your account will:</h4>
+            <ul>
+              <li><b>Delete</b> your Auth0 account (the account you registered and login with)</li>
+              <li><b>Delete</b> ALL user data from the database</li>
+              <li>This action <b>CANNOT</b> be undone</li>
+            </ul>
+          </Accordion.Body>
+        </Accordion.Item>
       </Accordion>
       <ToastContainer position="top-center">
         <Toast bg="success" show={showToast} delay={3000} autohide>
@@ -302,7 +345,34 @@ const Settings = () => {
           </Toast.Body>
         </Toast>
       </ToastContainer>
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>HOLD UP!🤚</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {!isProcessing ? (
+            <>
+              <p>Are you sure you want to delete your account?</p>
+              <p>This action is permanent and CANNOT be undone.</p>
+            </>
+          ) : (
+            <div style={{ textAlign: 'center'}}>
+              <h5>🛸 Deleting your account and data...</h5>
+              <Spinner animation="border" variant="primary" />
+          </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="success" onClick={handleCloseModal}>
+            Keep enjoying Budget Radness!
+          </Button>
+          <Button variant="danger" onClick={handleDeleteUser}>
+            DELETE
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
+  
  </>
   );
 };
