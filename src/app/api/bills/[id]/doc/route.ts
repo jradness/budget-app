@@ -8,7 +8,7 @@ export async function PUT(req: NextRequest, { params: { id }}) {
     const doc = await Bill.findOne({ userId: id });
 
     if (!doc) {
-      return NextResponse.json({ message: 'Bill not found'}, {status: 404});
+      return NextResponse.json({ message: 'User not found'}, {status: 404});
     }
 
     const data = await req.json();

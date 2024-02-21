@@ -12,46 +12,31 @@ const ForecastTable = () => {
   const {
     monthlyBills,
     paymentOptions,
-    getUserBillData
+    financialDetails,
+    expenseCategories,
   } = useBillService();
-  const {
-    getCurrent,
-    currentUser: user
-  } = useUserService();
   
-  const [state, setState] = useState({
-    biWeeklyIncome: 4929.67,
-    donations: 492.9,
-    groceryBudget: 1000,
-    calculatedBills: [],
-  });
+  const { currentUser } = useUserService();
+  
+  const [calculatedBills, setCalculatedBills] = useState([]);
 
   useEffect(() => {
-    if (!user) {
-      getCurrent('65c7b11a840eeedaeb0fc908');
-    }
-    if (user) {
-      getUserBillData();
-    }
-  },
-  [user]);
-
-  useEffect(() => {
-    if (user) {
+    if (currentUser) {
       calculateAndDisplay();
     }
-  }, [monthlyBills, paymentOptions, state.biWeeklyIncome, state.donations]);
+  }, [monthlyBills, paymentOptions, financialDetails, expenseCategories]);
 
   const calculateAndDisplay = () => {
     const { payStartDate, payEndDate } = paymentOptions;
+    const { payDayAmount, paymentSchedule } = financialDetails;
     const start = new Date(payStartDate);
     const end = new Date(payEndDate);
     let currentDate = new Date(start);
     const calculatedResults = [];
 
     while (currentDate <= end) {
-      const nextPayday = calculateNextPayday(currentDate);
-      const budget = calculateBudget(monthlyBills, currentDate, nextPayday, state.biWeeklyIncome, state.donations, state.groceryBudget);
+      const nextPayday = calculateNextPayday(currentDate, paymentSchedule);
+      const budget = calculateBudget(monthlyBills, currentDate, nextPayday, payDayAmount, expenseCategories);
       const isActive = isDateRangeActive(currentDate, nextPayday);
       const usLocale = 'en-US';
       calculatedResults.push({
@@ -63,11 +48,7 @@ const ForecastTable = () => {
       currentDate = new Date(nextPayday);
       currentDate.setDate(currentDate.getDate() + 1);
     }
-
-    setState(prevState => ({
-      ...prevState,
-      calculatedBills: calculatedResults
-    }));
+    setCalculatedBills(calculatedResults);
   }
 
   return (
@@ -82,9 +63,9 @@ const ForecastTable = () => {
           <th>Bills</th>
         </tr>
         </thead>
-        {state.calculatedBills.length > 0 ? (
+        {calculatedBills.length > 0 ? (
           <tbody>
-          {state.calculatedBills.map((result, index) => (
+          {calculatedBills.map((result, index) => (
             <tr key={index}>
               <td className="col-sm-1">{result.dateRange}</td>
               <td className="col-sm-1">${result.totalBillAmount}</td>

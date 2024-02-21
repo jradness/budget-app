@@ -1,13 +1,13 @@
-const calculateBudget = (bills, start, end, income, tithe, grocery) => {
-  let leftover = income;
+const calculateBudget = (monthlyBills, currentDate, nextPayday, payDayAmount, payPeriodExpenses) => {
+  let leftover = payDayAmount;
 
-  const { totalBillAmount, billNames } = bills.reduce(
+  const { totalBillAmount, billNames } = monthlyBills.reduce(
       (accumulator, bill) => {
-        let billYear = start.getFullYear();
-        let billMonth = start.getMonth();
+        let billYear = currentDate.getFullYear();
+        let billMonth = currentDate.getMonth();
 
         // Check if the bill due date is in the next month
-        if (bill.dueDayOfMonth < start.getDate()) {
+        if (bill.dueDayOfMonth < currentDate.getDate()) {
           billMonth++;
           if (billMonth > 11) {
             billMonth = 0;
@@ -17,7 +17,7 @@ const calculateBudget = (bills, start, end, income, tithe, grocery) => {
 
         const billDueDate = new Date(billYear, billMonth, bill.dueDayOfMonth);
 
-        if (billDueDate >= start && billDueDate <= end) {
+        if (billDueDate >= currentDate && billDueDate <= nextPayday) {
           accumulator.totalBillAmount += bill.billAmount;
           accumulator.billNames.push(bill.name);
         }
@@ -28,9 +28,10 @@ const calculateBudget = (bills, start, end, income, tithe, grocery) => {
   );
 
   leftover -= totalBillAmount;
-  leftover -= tithe;
-  leftover -= grocery;
-  billNames.push("Tithing", "Grocery Budget");
+  for (const { name, amount } of payPeriodExpenses) {
+    leftover -= amount;
+    billNames.push(`[${name}]`);
+  }
 
   return {
     leftoverSpending: leftover.toFixed(2),

@@ -24,12 +24,8 @@ interface IUserStore {
 }
 
 interface IUserService extends IUserStore {
-  // login: (username: string, password: string) => Promise<void>,
-  // logout: () => Promise<void>,
   register: (user: Object) => Promise<void>,
-  // getAll: () => Promise<void>,
-  // getById: (id: string) => Promise<void>,
-  getCurrent: (id: string) => Promise<void>,
+  getAuthUser: (email: string) => Promise<void>,
 }
 
 // users state store
@@ -47,14 +43,11 @@ function useUserService(): IUserService {
 
   return {
     currentUser,
-    getCurrent: async (id) => {
-      if (!currentUser) {
-        const { user } = await fetch.get(`${config.baseUrl}/api/users/${id}`);
-        userStore.setState({ currentUser: user });
-      }
+    getAuthUser: async (email) => {
+      const { user } = await fetch.get(`${config.baseUrl}/api/users/current?email=${email}`);
+      userStore.setState({ currentUser: user });
     },
     register: async (userData) => {
-      console.log(userData);
       const { user } = await fetch.post(`${config.baseUrl}/api/auth/register`, userData);
       userStore.setState({ currentUser: user });
     }

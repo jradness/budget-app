@@ -1,5 +1,5 @@
-import Link from "next/link";
 import styles from "./page.module.css";
+import { Button } from "react-bootstrap";
 
 export default function Home() {
 
@@ -7,9 +7,8 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <div>
-        <h1>Welcome to my 💩 App</h1>
-        <a className={styles.subText} href={returnLink}>Login / Sign Up</a>
-        <Link href="/dashboard">Dashboard</Link>
+        <h1>Welcome to Budget Radness 💸</h1>
+        <Button className={styles.subText} href={returnLink}>Login / Sign Up</Button>
       </div>
     </main>
   );

@@ -2,11 +2,11 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import {Table, Button, Form, Row, Col, Card, Container} from 'react-bootstrap';
 import {useBillService} from "../../_services/useBillService";
+
 const INIT_BILL = { name: '', dueDayOfMonth: '', billAmount: '' };
 
 const BillsList = () => {
-  const billService = useBillService();
-  const monthlyBills = billService.monthlyBills;
+  const { monthlyBills, handleBill, deleteBill} = useBillService()
   const [activeBill, setActiveBill] = useState(INIT_BILL);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -26,13 +26,13 @@ const BillsList = () => {
       dueDate: parseInt(activeBill.dueDayOfMonth),
       amount: parseFloat(activeBill.billAmount)
     };
-    billService.handleBill(cleanedBill);
+    handleBill(cleanedBill);
     setActiveBill(INIT_BILL);
     setIsEditing(false);
   };
 
   const handleDeleteBill = (bill) => {
-    billService.deleteBill(bill);
+    deleteBill(bill);
   }
 
   const handleInputChange = (e, field) => {

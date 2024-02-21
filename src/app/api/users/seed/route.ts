@@ -16,6 +16,7 @@ export async function POST(req: NextRequest, res) {
 
     await connectMongoDB();
     const newUser = await User.create(user);
+   
     await Bill.create({ userId: newUser._id, monthlyBills });
 
     return NextResponse.json({ newUser, message: 'User successfully created!' }, { status: 201 });
