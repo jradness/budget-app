@@ -7,7 +7,11 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <div>
-        <h1>Welcome to Budget Radness 💸</h1>
+      <div className="wave"></div>
+     <div className="wave"></div>
+     <div className="wave"></div>
+        <h1>Welcome to Budget Radness 💰</h1>
+        <small>(Beta 0.1.0)</small>
         <Button className={styles.subText} href={returnLink}>Login / Sign Up</Button>
       </div>
     </main>

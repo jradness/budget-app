@@ -50,7 +50,7 @@ const BillsList = () => {
   };
 
   const handleConfirmDelete = (bill) => {
-    setShowModal(true);
+    handleShowModal();
     setActiveBill(bill);
   }
 
