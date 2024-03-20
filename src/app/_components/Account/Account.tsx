@@ -1,8 +1,8 @@
 'use client'
 import { useEffect } from 'react';
 import { useUser } from '@auth0/nextjs-auth0/client';
-import { useUserService } from '../../_services/useUserService';
-import { useBillService } from "../../_services/useBillService";
+import { useUserService } from '@services/useUserService';
+import { useBillService } from "@services/useBillService";
 import { Container, Navbar } from 'react-bootstrap';
 
 const Account = ({ children }) => {

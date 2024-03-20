@@ -1,7 +1,6 @@
 import React from 'react';
-import DashboardTabs from '../../_components/DashboardTabs/DashboardTabs';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0';
-import Account from '../../_components/Account/Account';
+import {Account, DashboardTabs} from '@components/index';
 
 const Dashboard = async () => {
  return (

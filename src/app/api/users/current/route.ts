@@ -1,6 +1,6 @@
-import connectMongoDB from "../../../../lib/mongodb";
-import {User} from "../../../../models/user";
 import { NextRequest, NextResponse } from 'next/server';
+import connectMongoDB from "@lib/mongodb";
+import {User} from "@models/user";
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,7 +9,6 @@ export async function GET(req: NextRequest) {
     const user = await User.findOne({ email });
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
-    // Handle any errors and return an appropriate response
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }

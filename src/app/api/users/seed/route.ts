@@ -1,7 +1,7 @@
-import connectMongoDB from "../../../../lib/mongodb";
-import { User } from "../../../../models/user";
-import { Bill } from "../../../../models/bills";
 import { NextRequest, NextResponse } from 'next/server';
+import connectMongoDB from "@lib/mongodb";
+import { User } from "@models/user";
+import { Bill } from "@models/bills";
 import { readFile } from 'fs/promises'
 import path from 'path';
 

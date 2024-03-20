@@ -2,9 +2,9 @@
 import React, {useEffect, useState} from 'react';
 import { useRouter } from 'next/navigation';
 import {Spinner, Modal, Container, Accordion, ToastContainer, Toast, Button, Col, Form, Row, Card, Table} from "react-bootstrap";
-import { useBillService } from "../../_services/useBillService";
+import { useBillService } from "@services/useBillService";
+import { useUserService } from '@services/useUserService';
 import { useUser } from '@auth0/nextjs-auth0/client';
-import { useUserService } from '../../_services/useUserService';
 
 const Settings = () => {
   const { user } = useUser();

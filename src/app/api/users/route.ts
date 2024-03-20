@@ -1,6 +1,6 @@
-import connectMongoDB from "../../../lib/mongodb";
-import { User } from "../../../models/user";
-import { Bill } from "../../../models/bills";
+import connectMongoDB from "@lib/mongodb";
+import { User } from "@models/user";
+import { Bill } from "@models/bills";
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest, res) {
