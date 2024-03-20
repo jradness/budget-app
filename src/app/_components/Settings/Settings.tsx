@@ -256,6 +256,7 @@ const Settings = () => {
         <Accordion.Item eventKey="2">
           <Accordion.Header>Add Recurring Pay Period Expense</Accordion.Header>
           <Accordion.Body>
+          <p>(i.e. Grocery Budget, Donations, etc)</p>
             <Form>
               <Card className="mt-3">
                 <Card.Body>
