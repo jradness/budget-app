@@ -19,7 +19,7 @@ export default function Home() {
         <b>Important to Note: </b>
         The app operates on the bill due dates you input.
         Remember, real-life scenarios might differ as actual bill due dates can shift due to weekends, holidays, and other variables.
-        We've got you covered with these estimations, but always stay attuned to the actual dates.
+        We&apos;ve got you covered with these estimations, but always stay attuned to the actual dates.
         </p>
         <h3 className={s.featureTitle}>Features:</h3>
         <ul className={s.featureList}>
