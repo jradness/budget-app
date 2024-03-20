@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectMongoDB from "../../../../../lib/mongodb";
-import { Bill } from "../../../../../models/bills";
+import connectMongoDB from "@lib/mongodb";
+import { Bill } from "@models/bills";
 
 export async function GET(req: NextRequest, { params: { id } }: any) {
   try {
@@ -18,7 +18,6 @@ export async function PUT(req: NextRequest, { params: { id }}) {
     await connectMongoDB();
     let doc = await Bill.findOne({userId: id});
     if (!doc) {
-      console.error('User Bill collection not found');
       return NextResponse.json({ message: 'User Bill collection not found' }, { status: 404 });
     }
     const data = await req.json();

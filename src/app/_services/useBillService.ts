@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { useUserService } from "./useUserService";
-import { useFetch } from '../_helpers/client/useFetch';
+import { useUserService } from "@services/useUserService";
+import { useFetch } from '@helpers/client/useFetch';
 import { config } from '../../constants';
 
 // interfaces
@@ -86,7 +86,6 @@ function useBillService(): IBillsService {
     getUserBillData: async () => await fetchBillDetails(currentUser?._id),
     handleBill: async (bill) => {
       const { billDoc } = await fetch.put(`${config.baseUrl}/api/bills/${currentUser._id}/monthly`, bill);
-      console.log(billDoc.monthlyBills[1]);
       billsStore.setState({ monthlyBills: billDoc.monthlyBills});
     },
     deleteBill: async (bill) => {

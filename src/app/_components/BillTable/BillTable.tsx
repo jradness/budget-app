@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useMemo } from 'react';
 import {Spinner, Modal, Table, Button, Form, Row, Col, Card, Container, ToastContainer, Toast} from 'react-bootstrap';
-import {useBillService} from "../../_services/useBillService";
+import {useBillService} from "@services/useBillService";
 
 const INIT_BILL = { name: '', dueDayOfMonth: '', billAmount: '' };
 

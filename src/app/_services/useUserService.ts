@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useFetch } from '../_helpers/client/useFetch';
+import { useFetch } from '@helpers/client/useFetch';
 import { config } from '../../constants';
 
 
@@ -39,8 +38,6 @@ const userStore = create<IUserStore>(() => initialState);
 
 function useUserService(): IUserService {
   const fetch = useFetch();
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const { currentUser } = userStore();
 
   return {

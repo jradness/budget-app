@@ -23,7 +23,16 @@
         "name": "next"
       }
     ],
-    "baseUrl": "./app"
+    "paths": {
+      "@/*": ["./src/*"],
+      "@api/*": ["./src/app/api/*"],
+      "@components/*": ["./src/app/_components/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@helpers/*": ["./src/app/_helpers/*"],
+      "@models/*": ["./src/models/*"],
+      "@services/*": ["./src/app/_services/*"],
+      "@utils/*": ["./src/utils/*"],
+    }
   },
   "include": [
     "next-env.d.ts",

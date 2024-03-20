@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectMongoDB from "../../../../../lib/mongodb";
-import { Bill } from "../../../../../models/bills";
+import connectMongoDB from "@lib/mongodb";
+import { Bill } from "@models/bills";
 
 export async function PUT(req: NextRequest, { params: { id }}) {
   try {
