@@ -84,3 +84,13 @@
   margin: 0 auto;
   width: fit-content;
 }
+
+.featureTitle,
+.appDescription,
+.featureList li {
+  color: white;
+}
+
+.homeWrapper {
+  max-width: 900px;
+}
