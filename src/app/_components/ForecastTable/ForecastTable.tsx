@@ -65,7 +65,7 @@ const ForecastTable = () => {
         {calculatedBills.length > 0 ? (
           <tbody>
           {calculatedBills.map((result, index) => (
-            <tr key={index}>
+            <tr key={index} style={{ fontWeight: result.isActive ? 'bold' : 'regular'}}>
               <td className="col-sm-1">{result.dateRange}</td>
               <td className="col-sm-1">${result.totalBillAmount}</td>
               <td className="col-sm-1">${result.leftoverSpending}</td>
