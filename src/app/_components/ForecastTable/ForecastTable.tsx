@@ -48,6 +48,7 @@ const ForecastTable = () => {
 
     }
     setCalculatedBills(calculatedResults);
+    
   }
 
   return (
