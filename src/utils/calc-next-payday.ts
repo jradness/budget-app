@@ -1,24 +1,30 @@
-const calculateNextPayday = (currentDate, paymentSchedule) => {
-  const nextPayday = new Date(currentDate);
-  let payPeriodLength = 0;
-  const fixedBiWeeklyPay = 13;
-  switch(paymentSchedule) {
+export const addDaysUTC = (date, days) => {
+  const d = new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate()
+  ));
+  d.setUTCDate(d.getUTCDate() + days);
+  return d;
+};
+
+export const calculateNextPayday = (paydayStart, paymentSchedule) => {
+  let paydayInterval;
+
+  switch (paymentSchedule) {
     case 'weekly':
-      payPeriodLength = 7
+      paydayInterval = 7;
       break;
     case 'bi-weekly':
-      payPeriodLength = 14
-      break;
-    case 'monthly':
-      payPeriodLength = 0 // length of current month
+      paydayInterval = 14;
       break;
     case 'yearly':
-      payPeriodLength = 365
+      paydayInterval = 365;
       break;
+    default:
+      throw new Error('Unsupported schedule');
   }
-  payPeriodLength -= 1;
-  nextPayday.setDate(nextPayday.getDate() + fixedBiWeeklyPay);
-  return nextPayday;
-}
 
-export default calculateNextPayday;
+  // Budget runs payday → day before next payday
+  return addDaysUTC(paydayStart, paydayInterval - 1);
+};

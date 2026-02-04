@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Container } from "react-bootstrap";
 import { useBillService } from "@services/useBillService";
 import { useUserService } from "@services/useUserService";
-import calculateNextPayday from "@utils/calc-next-payday";
+import { calculateNextPayday, addDaysUTC } from "@utils/calc-next-payday";
 import calculateBudget from "@utils/calc-budget";
 import isDateRangeActive from "@utils/is-active-date-range";
 
@@ -44,8 +44,8 @@ const ForecastTable = () => {
         isActive
       });
 
-      currentDate = new Date(nextPayday);
-      currentDate.setDate(currentDate.getDate() + 1);
+      currentDate = addDaysUTC(nextPayday, 1);
+
     }
     setCalculatedBills(calculatedResults);
   }
